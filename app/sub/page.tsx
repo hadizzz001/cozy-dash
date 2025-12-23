@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Upload from '../components/Upload';
 import { useRouter } from 'next/navigation';
 
 const ManageCategory = () => {
@@ -34,6 +33,7 @@ const ManageCategory = () => {
   // ✅ Add subcategory
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const res = await fetch('/api/sub', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -62,14 +62,18 @@ const ManageCategory = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await fetch(`/api/sub?id=${encodeURIComponent(editFormData.id)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: editFormData.name,
-        }),
-      });
+      const res = await fetch(
+        `/api/sub?id=${encodeURIComponent(editFormData.id)}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: editFormData.name,
+          }),
+        }
+      );
 
       if (res.ok) {
         setEditFormData({ id: '', name: '' });
@@ -88,11 +92,13 @@ const ManageCategory = () => {
 
   // ✅ Delete subcategory
   const handleDelete = async (id) => {
-    if (confirm(`Are you sure you want to delete this subcategory?`)) {
+    if (confirm('Are you sure you want to delete this subcategory?')) {
       try {
-        const res = await fetch(`/api/sub?id=${encodeURIComponent(id)}`, {
-          method: 'DELETE',
-        });
+        const res = await fetch(
+          `/api/sub?id=${encodeURIComponent(id)}`,
+          { method: 'DELETE' }
+        );
+
         if (res.ok) {
           setMessage('Subcategory deleted successfully!');
           fetchCategories();
@@ -107,16 +113,50 @@ const ManageCategory = () => {
     }
   };
 
- 
- 
+  // ✅ Save all sort updates
+  const handleSaveAllSorts = async () => {
+    try {
+      const updates = categories
+        .filter((c) => c.id && c.sort !== undefined && c.sort !== null)
+        .map(({ id, sort }) => ({ id, sort: Number(sort) }));
 
+      if (updates.length === 0) {
+        alert('No subcategories to update!');
+        return;
+      }
+
+      for (const { id, sort } of updates) {
+        const res = await fetch(`/api/sub1/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sort }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error(`❌ Failed for ID ${id}: ${errorData.error}`);
+        }
+      }
+
+      alert('✅ All sort values saved successfully!');
+      fetchCategories();
+    } catch (error) {
+      console.error('Error saving sorts:', error);
+      alert('❌ Failed to save sort values');
+    }
+  };
 
   return (
     <div className="container mx-auto p-4 text-[13px]">
-      <h1 className="text-2xl font-bold mb-4">{editMode ? 'Edit Subcategory' : 'Add Subcategory'}</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        {editMode ? 'Edit Subcategory' : 'Add Subcategory'}
+      </h1>
 
       {/* ✅ ADD / EDIT FORM */}
-      <form onSubmit={editMode ? handleEditSubmit : handleSubmit} className="mb-8 space-y-4">
+      <form
+        onSubmit={editMode ? handleEditSubmit : handleSubmit}
+        className="mb-8 space-y-4"
+      >
         <input
           type="text"
           placeholder="Subcategory Name"
@@ -130,10 +170,10 @@ const ManageCategory = () => {
           className="border p-2 w-full"
         />
 
-
         <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           {editMode ? 'Update Subcategory' : 'Add Subcategory'}
         </button>
+
         {editMode && (
           <button
             type="button"
@@ -148,23 +188,43 @@ const ManageCategory = () => {
         )}
       </form>
 
- 
+      {/* ✅ SORT SAVE BUTTON */}
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={handleSaveAllSorts}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Save Sorts
+        </button>
+      </div>
 
       {/* ✅ SUBCATEGORY TABLE */}
       <table className="table-auto w-full border-collapse border border-gray-300">
         <thead className="bg-gray-100">
           <tr>
-            <th className="border p-2 text-left">Name</th> 
+            <th className="border p-2 text-left">Name</th>
+            <th className="border p-2 text-left">Sort</th>
             <th className="border p-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {categories.map((category) => (
             <tr key={category.id}>
- 
               <td className="border p-2">{category.name}</td>
 
- 
+              <td className="border p-2 w-20">
+                <input
+                  type="number"
+                  value={category.sort || ''}
+                  onChange={(e) => {
+                    const updated = [...categories];
+                    const index = updated.findIndex((c) => c.id === category.id);
+                    updated[index].sort = e.target.value;
+                    setCategories(updated);
+                  }}
+                  className="border p-1 w-full text-center"
+                />
+              </td>
 
               <td className="border p-2">
                 <button

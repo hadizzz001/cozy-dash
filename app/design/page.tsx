@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Upload from '../components/Upload';
 import { useRouter } from 'next/navigation';
 
 const ManageCategory = () => {
@@ -9,38 +10,42 @@ const ManageCategory = () => {
   // ================= STATES =================
   const [formData, setFormData] = useState({
     title: '',
-    code: '#000000',
-    cat: [],
+    img: [],
+    cat: [], // ✅ selected categories
   });
 
   const [editFormData, setEditFormData] = useState({
     id: '',
     title: '',
-    code: '#000000',
+    img: [],
     cat: [],
   });
 
-  const [categories, setCategories] = useState([]);
-  const [allCats, setAllCats] = useState([]);
+  const [categories, setCategories] = useState([]); // designs
+  const [allCats, setAllCats] = useState([]); // categories from /api/category
+  const [img, setImg] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
 
-  // ================= FETCH COLORS =================
+  // ================= FETCH DESIGN =================
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/color');
-      if (res.ok) setCategories(await res.json());
+      const res = await fetch('/api/design');
+      if (res.ok) {
+        setCategories(await res.json());
+      }
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ================= FETCH ALL CATEGORIES =================
+  // ================= FETCH CATEGORIES =================
   const fetchAllCats = async () => {
     try {
       const res = await fetch('/api/category');
-      if (res.ok) setAllCats(await res.json());
+      if (res.ok) {
+        setAllCats(await res.json());
+      }
     } catch (err) {
       console.error(err);
     }
@@ -51,10 +56,21 @@ const ManageCategory = () => {
     fetchAllCats();
   }, []);
 
+  // ================= IMAGE =================
+  const handleImgChange = (url) => {
+    if (url) setImg(url);
+  };
+
+  useEffect(() => {
+    if (!img.length) return;
+
+    editMode
+      ? setEditFormData((prev) => ({ ...prev, img }))
+      : setFormData((prev) => ({ ...prev, img }));
+  }, [img]);
+
   // ================= TOGGLE CATEGORY =================
   const toggleCat = (value) => {
-    setError('');
-
     if (editMode) {
       setEditFormData((prev) => ({
         ...prev,
@@ -72,100 +88,82 @@ const ManageCategory = () => {
     }
   };
 
-  // ================= ADD COLOR =================
+  // ================= ADD =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.cat.length === 0) {
-      setError('Please select at least one category');
-      return;
-    }
-
-    const res = await fetch('/api/color', {
+    const res = await fetch('/api/design', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     });
 
     if (res.ok) {
-      setMessage('Color added successfully!');
-      setError('');
-      setFormData({ title: '', code: '#000000', cat: [] });
+      setMessage('Design added successfully!');
+      setFormData({ title: '', img: [], cat: [] });
+      setImg([]);
       fetchCategories();
       router.refresh();
-    } else {
-      const err = await res.json();
-      setError(err.error || 'Failed to add color');
     }
   };
 
-  // ================= EDIT COLOR =================
+  // ================= EDIT =================
   const handleEdit = (item) => {
     setEditMode(true);
-    setError('');
-    setMessage('');
     setEditFormData({
       id: item.id,
       title: item.title,
-      code: item.code,
+      img: item.img || [],
       cat: item.cat || [],
     });
+    setImg(item.img || []);
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
-    if (editFormData.cat.length === 0) {
-      setError('Please select at least one category');
-      return;
-    }
-
-    const res = await fetch(`/api/color?id=${encodeURIComponent(editFormData.id)}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: editFormData.title,
-        code: editFormData.code,
-        cat: editFormData.cat,
-      }),
-    });
+    const res = await fetch(
+      `/api/design?id=${encodeURIComponent(editFormData.id)}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editFormData.title,
+          img: editFormData.img,
+          cat: editFormData.cat,
+        }),
+      }
+    );
 
     if (res.ok) {
       setEditMode(false);
-      setEditFormData({ id: '', title: '', code: '#000000', cat: [] });
-      setError('');
+      setEditFormData({ id: '', title: '', img: [], cat: [] });
+      setImg([]);
       fetchCategories();
       router.refresh();
-    } else {
-      const err = await res.json();
-      setError(err.error || 'Failed to update color');
     }
   };
 
-  // ================= DELETE COLOR =================
+  // ================= DELETE =================
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this color?')) return;
+    if (!confirm('Are you sure?')) return;
 
-    const res = await fetch(`/api/color?id=${encodeURIComponent(id)}`, {
+    const res = await fetch(`/api/design?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
 
     if (res.ok) {
-      setMessage('Color deleted successfully!');
+      setMessage('Design deleted successfully!');
       fetchCategories();
       router.refresh();
     }
   };
-
-  const selectedCatCount = editMode
-    ? editFormData.cat.length
-    : formData.cat.length;
 
   // ================= UI =================
   return (
     <div className="container mx-auto p-4 text-[13px]">
       <h1 className="text-2xl font-bold mb-4">
-        {editMode ? 'Edit Color' : 'Add Color'}
+        {editMode ? 'Edit Design' : 'Add Design'}
       </h1>
 
       {/* ================= FORM ================= */}
@@ -176,7 +174,7 @@ const ManageCategory = () => {
         {/* TITLE */}
         <input
           type="text"
-          placeholder="Color Title"
+          placeholder="Design Title"
           value={editMode ? editFormData.title : formData.title}
           onChange={(e) =>
             editMode
@@ -187,7 +185,7 @@ const ManageCategory = () => {
           className="border p-2 w-full"
         />
 
-        {/* ================= CATEGORY TAGS ================= */}
+        {/* CATEGORY TAGS */}
         <div className="flex flex-wrap gap-2">
           {allCats.map((c) => {
             const selected = editMode
@@ -213,34 +211,15 @@ const ManageCategory = () => {
           })}
         </div>
 
-        {/* ERROR */}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-
-        {/* COLOR PICKER */}
-        <input
-          type="color"
-          value={editMode ? editFormData.code : formData.code}
-          onChange={(e) =>
-            editMode
-              ? setEditFormData({ ...editFormData, code: e.target.value })
-              : setFormData({ ...formData, code: e.target.value })
-          }
-          className="border p-2 w-16 h-10 cursor-pointer"
-        />
+        {/* IMAGE UPLOAD */}
+        <Upload onFilesUpload={handleImgChange} />
 
         {/* BUTTONS */}
         <button
           type="submit"
-          disabled={selectedCatCount === 0}
-          className={`px-4 py-2 rounded text-white
-            ${
-              selectedCatCount === 0
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-green-600'
-            }
-          `}
+          className="bg-green-600 text-white px-4 py-2 rounded"
         >
-          {editMode ? 'Update Color' : 'Add Color'}
+          {editMode ? 'Update Design' : 'Add Design'}
         </button>
 
         {editMode && (
@@ -248,13 +227,8 @@ const ManageCategory = () => {
             type="button"
             onClick={() => {
               setEditMode(false);
-              setEditFormData({
-                id: '',
-                title: '',
-                code: '#000000',
-                cat: [],
-              });
-              setError('');
+              setEditFormData({ id: '', title: '', img: [], cat: [] });
+              setImg([]);
             }}
             className="bg-gray-500 text-white px-4 py-2 rounded ml-2"
           >
@@ -267,24 +241,28 @@ const ManageCategory = () => {
       <table className="table-auto w-full border-collapse border border-gray-300">
         <thead className="bg-gray-100">
           <tr>
-            <th className="border p-2 text-left">Title</th>
-            <th className="border p-2 text-left">Color</th>
-            <th className="border p-2 text-left">Categories</th>
-            <th className="border p-2 text-left">Actions</th>
+            <th className="border p-2">Image</th>
+            <th className="border p-2">Title</th>
+            <th className="border p-2">Categories</th>
+            <th className="border p-2">Actions</th>
           </tr>
         </thead>
         <tbody>
           {categories.map((item) => (
             <tr key={item.id}>
-              <td className="border p-2">{item.title}</td>
-
-              <td className="border p-2 flex items-center gap-2">
-                <div
-                  className="w-6 h-6 rounded border"
-                  style={{ backgroundColor: item.code }}
-                />
-                <span>{item.code}</span>
+              <td className="border p-2">
+                {item.img?.length ? (
+                  <img
+                    src={item.img[0]}
+                    alt={item.title}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                ) : (
+                  '—'
+                )}
               </td>
+
+              <td className="border p-2">{item.title}</td>
 
               <td className="border p-2">
                 {item.cat?.length ? item.cat.join(', ') : '—'}

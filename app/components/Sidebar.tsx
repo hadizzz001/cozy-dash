@@ -49,11 +49,11 @@ export default function Sidebar() {
                 Add Sub-category
               </a>
             </li>    
-            <li>
+{/*             <li>
               <a href="/factory" style={{ color: "white", textDecoration: "none" }}>
                 Add Brand
               </a>
-            </li>    
+            </li>     */}
               
             <li>
               <a href="/offer" style={{ color: "white", textDecoration: "none" }}>
@@ -71,6 +71,11 @@ export default function Sidebar() {
               </a>
             </li>  
             <li>
+              <a href="/design" style={{ color: "white", textDecoration: "none" }}>
+                Design
+              </a>
+            </li>  
+            <li>
               <a href="/size" style={{ color: "white", textDecoration: "none" }}>
                 Sizes
               </a>
@@ -81,8 +86,8 @@ export default function Sidebar() {
               </a>
             </li>  */}
             <li>
-              <a href="/off" style={{ color: "white", textDecoration: "none" }}>
-                Hot Offers
+              <a href="/banner" style={{ color: "white", textDecoration: "none" }}>
+                Banner
               </a>
             </li>
             <li>

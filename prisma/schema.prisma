@@ -20,27 +20,22 @@ model Product {
   type         String
   arrival      String   @default("no")
   cost         String?
-  sub          String
-  factory      String 
+  sub          String 
 }
 
 model Category {
   id   String   @id @default(auto()) @map("_id") @db.ObjectId
   name String   @unique
-  img  String[] 
+  img  String[]  
 }
 
 model Sub {
   id   String   @id @default(auto()) @map("_id") @db.ObjectId
   name String   @unique 
+  sort      Int?
 }
 
-model Factory {
-  id   String   @id @default(auto()) @map("_id") @db.ObjectId
-  name String   @unique
-  img  String[] 
-}
-
+ 
 model Offer {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   code String
@@ -88,19 +83,27 @@ model Color {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   title        String  
   code        String
+  cat String[]
 }
 
 
 model Size {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  title        String 
+  title        String  
 }
 
 
+model Design {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  title        String  
+  img  String[]  
+  cat String[]
+}
 
 
-model Hotoffer {
-  id   String   @id @default(auto()) @map("_id") @db.ObjectId
-  name String   @unique
-  img  String[] 
+ 
+
+ model Banner {
+  id  String   @id @default(auto()) @map("_id") @db.ObjectId
+  img String[] 
 }
