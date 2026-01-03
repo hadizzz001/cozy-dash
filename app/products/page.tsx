@@ -23,7 +23,7 @@ export default function AddProduct() {
   const [factoryOptions, setFactoryOptions] = useState([]);
   const [selectedFactory, setSelectedFactory] = useState("");
 
-  const [productType, setProductType] = useState("single");
+  const [productType, setProductType] = useState("collection");
   const [discount, setDiscount] = useState("");
 
   const [colorOptions, setColorOptions] = useState([]);
@@ -213,7 +213,7 @@ export default function AddProduct() {
       <div className="mb-4">
         <label className="font-bold">Product Type</label>
         <div className="flex gap-4">
-          <label>
+          {/* <label>
             <input
               type="radio"
               value="single"
@@ -221,7 +221,7 @@ export default function AddProduct() {
               onChange={() => setProductType("single")}
             />{" "}
             1 Item
-          </label>
+          </label> */}
           <label>
             <input
               type="radio"

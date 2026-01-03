@@ -17,6 +17,7 @@ export default function ProductTable() {
   const [selectedCategory, setSelectedCategory] = useState('');
 
 
+
   // Fetch products and categories on load
   useEffect(() => {
     fetchProducts();
@@ -356,6 +357,18 @@ const [selectedFactory, setSelectedFactory] = useState(product?.factory || "");
   // ✅ NEW DATA STRUCTURE: { colorId: [ { size, qty, price } ] }
   const [colorSizeData, setColorSizeData] = useState({});
 
+
+
+
+    const filteredColors =
+    selectedCategory === ""
+      ? []
+      : colorOptions.filter(
+          (color) =>
+            Array.isArray(color.cat) &&
+            color.cat.includes(selectedCategory)
+        );
+
   /** ✅ Fetch Colors & Sizes */
   useEffect(() => {
     async function loadColors() {
@@ -488,23 +501,20 @@ const handleSubmit = (e) => {
         {subCategories.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
       </select>
 
-      <select className="border p-2 w-full mb-4" value={selectedFactory} onChange={(e) => setSelectedFactory(e.target.value)}>
-        <option value="">Select Factory</option>
-        {factories.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
-      </select>
+ 
 
       {/* TYPE */}
       <div className="flex gap-4 mb-4">
-        <label><input type="radio" checked={type === "single"} onChange={() => setType("single")} /> Single</label>
+        {/* <label><input type="radio" checked={type === "single"} onChange={() => setType("single")} /> Single</label> */}
         <label><input type="radio" checked={type === "collection"} onChange={() => setType("collection")} /> Collection</label>
       </div>
 
       {type === "single" && (
         <input type="number" placeholder="Stock" className="border p-2 w-full mb-4" value={stock} onChange={(e) => setStock(e.target.value)} />
       )}
-
+{/* 
       <input type="number" placeholder="Price" className="border p-2 w-full mb-2" value={price} onChange={(e) => setPrice(e.target.value)} />
-      <input type="number" placeholder="Discount %" className="border p-2 w-full mb-4" value={discount} onChange={(e) => setDiscount(e.target.value)} />
+      <input type="number" placeholder="Discount %" className="border p-2 w-full mb-4" value={discount} onChange={(e) => setDiscount(e.target.value)} /> */}
 
       {/* ✅ COLORS + SIZES */}
       {type === "collection" && (
@@ -512,7 +522,7 @@ const handleSubmit = (e) => {
           <label className="font-bold text-lg">Colors</label>
 
           <div className="flex flex-wrap gap-3 mt-3">
-            {colorOptions.map((c) => (
+           {filteredColors.map((c) => (
               <div key={c.id} onClick={() => handleColorToggle(c.id)}
                    className={`p-2 cursor-pointer rounded-md border w-24 text-center ${
                      colorSizeData[c.id] ? "ring-2 ring-green-500" : ""

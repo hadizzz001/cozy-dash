@@ -17,6 +17,7 @@ export async function POST(req) {
       color,
       type, 
       sub,
+      cost
     } = body;
 
     console.log("body are: ", body);
@@ -36,6 +37,7 @@ export async function POST(req) {
         color,
         type, 
         sub,
+        cost
       },
     });
 

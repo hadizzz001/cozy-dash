@@ -421,6 +421,7 @@ const page = () => {
                       <th className="text-left font-semibold">Price</th>
                       <th className="text-left font-semibold">Color</th>
                       <th className="text-left font-semibold">Size</th>
+                      <th className="text-left font-semibold">Gift Note</th> 
                       <th className="text-left font-semibold">Quantity</th>
                       <th className="text-left font-semibold">Action</th>
                     </tr>
@@ -471,6 +472,34 @@ const page = () => {
                             <td className="py-4">{temp.selectedSize}</td>
 
                             <td className="py-4">
+  {temp?.giftNote ? (
+    <div className="flex items-center gap-2">
+      {/* Design Image */}
+      {temp.giftNote.design?.img?.[0] && (
+        <img
+          src={temp.giftNote.design.img[0]}
+          alt={temp.giftNote.design.title}
+          className="w-10 h-10 object-cover rounded"
+        />
+      )}
+
+      {/* Text Info */}
+      <div className="text-xs">
+        <p className="font-semibold">
+          {temp.giftNote.design?.title}
+        </p>
+        <p className="text-gray-600">
+          Baby: {temp.giftNote.babyName}
+        </p>
+      </div>
+    </div>
+  ) : (
+    <span className="text-gray-400 text-xs">—</span>
+  )}
+</td>
+
+
+                            <td className="py-4">
                               <div className="flex items-center">
                                 <span className="text-center w-8">{temp.quantity}</span>
                               </div>
@@ -505,7 +534,7 @@ const page = () => {
                     )}
                   </tbody>
                 </table>
-                {!allTemp1?.delete && (
+                {/* {!allTemp1?.delete && (
                   <button
                     onClick={() => {
                       fetchAvailableProducts();
@@ -515,7 +544,7 @@ const page = () => {
                   >
                     Add New Product
                   </button>
-                )}
+                )} */}
 
 
 
@@ -650,7 +679,7 @@ const page = () => {
         </div>
       </div>
 
-      {showModal && (
+      {/* {showModal && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow-md w-[90%] max-w-md relative">
             <button onClick={() => setShowModal(false)} className="absolute top-2 right-2 text-lg">×</button>
@@ -713,7 +742,7 @@ const page = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
 
 
